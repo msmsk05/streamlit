@@ -5,17 +5,7 @@ import pandas as pd
 import numpy as numpy
 import matplotlib.pyplot as plt
 import seaborn as sns
-import psycopg2
-import difflib
-import fuzzywuzzy
-from fuzzywuzzy import process
-import sys
-import logging
-import spacy
-from spacy import displacy
-from collections import Counter
-import en_core_web_sm
-import re
+ımport plotly as plt
 
 
 
