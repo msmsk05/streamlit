@@ -4,6 +4,7 @@ import streamlit as st
 import pandas as pd
 import numpy as numpy
 import plotly as plt
+from google.cloud import bigquery
 
 
 
