@@ -26,30 +26,26 @@ st.markdown(html_temp,unsafe_allow_html=True)
 
   
 @st.cache(allow_output_mutation=True)
-def get_query_results(name):
+def get_table(date):
+  bigquery_client = bigquery.Client()
 
-    # Connect to the PostgreSQL database server
-    with psycopg2.connect(host='35.224.7.101',
-                          port='5432',
-                          database='postgres',
-                          user= 'postgres',
-                          password= 'FutureLeaders') as conn:
-        
-        sql = "Select name, legal_entity_id, organizationz.id, country, city from organizationz inner join organization_address on organization_address.organization_id=organizationz.id inner join address on address.id=organization_address.address_id where lower(Name) like lower('"+name+"%')"
-
-        # Execute query and return results as a pandas dataframe
-        df = pd.read_sql(sql, conn, index_col=None)
-       
-        if len(df)>0:
-     
-            return df
-        else:
-            name1=name[:5]
-            sql="Select name, legal_entity_id, organizationz.id, country, city from organizationz inner join organization_address on organization_address.organization_id=organizationz.id inner join address on address.id=organization_address.address_id where lower(Name) like lower('"+name1+"%')"
-            df2 = pd.read_sql(sql, conn, index_col=None)
-            
-            return df2
-        
+  QUERY = """
+  SELECT * FROM `coo-risk-ews-237113.ews.topic_model_feedback WHERE DATE(_PARTITIONTIME) = "2022-06-17" `
+   """
+  Query_Results = bigquery_client.query(QUERY)
+  df = Query_Results.to_dataframe()
+  #View top few rows of result
+  TP=df[(df.model_threshold==True) & (df.feedback==True)].feedback.count()
+  FP=df[(df.model_threshold==True) & (df.feedback==False)].feedback.count()
+  FN=df[(df.model_threshold==False) & (df.feedback==True)].feedback.count()
+  TN=df[(df.model_threshold==False) & (df.feedback==False)].drop_duplicates(subset=['article_id', 'topic_model']).feedback.count()
+  
+  
+  
+  
+  
+  
+  
 def get_fuzzy_matches(name):
     name1=name[:5]
     name2=name[1:6]
@@ -61,7 +57,7 @@ def get_fuzzy_matches(name):
                           port='5432',
                           database='postgres',
                           user= 'postgres',
-                          password= 'FutureLeaders') as conn:
+                          password= '') as conn:
         
         sql = "Select * from Organizationz where lower(Name) like lower('%"+name+"%') or lower(Name) like lower('%"+name1+"%') or lower(Name) like lower('%"+name2+"%') or lower(Name) like lower('%"+name3+"%')"
 
@@ -97,7 +93,7 @@ def get_difflib_matches(name):
                           port='5432',
                           database='postgres',
                           user= 'postgres',
-                          password= 'FutureLeaders') as conn:
+                          password= '') as conn:
         
         sql = "Select * from Organizationz where lower(Name) like lower('%"+name+"%') or lower(Name) like lower('%"+name1+"%') or lower(Name) like lower('%"+name2+"%') or lower(Name) like lower('%"+name3+"%') or lower(Name) like lower('%"+name4+"') or lower(Name) like lower('%"+name5+"')"
 
@@ -124,7 +120,7 @@ def join(name,coun):
                           port='5432',
                           database='postgres',
                           user= 'postgres',
-                          password= 'FutureLeaders') as conn:
+                          password= '') as conn:
         
         sql = "Select name, legal_entity_id, organizationz.id, country, city from organizationz inner join organization_address on organization_address.organization_id=organizationz.id inner join address on address.id=organization_address.address_id where (lower(Name) like lower('"+name+"%') or lower(Name) like lower('"+name1+"%') or lower(Name) like lower('"+name2+"%') or lower(Name) like lower('%"+name3+"') or lower(Name) like lower('%"+name4+"') or lower(Name) like lower('%"+name5+"')) and lower(country) like lower('%"+coun+"%')"
 
@@ -145,7 +141,7 @@ def join2(name,city):
                           port='5432',
                           database='postgres',
                           user= 'postgres',
-                          password= 'FutureLeaders') as conn:
+                          password= '') as conn:
         
         sql = "Select name, legal_entity_id, organizationz.id, country, city from organizationz inner join organization_address on organization_address.organization_id=organizationz.id inner join address on address.id=organization_address.address_id where (lower(Name) like lower('"+name+"%') or lower(Name) like lower('"+name1+"%') or lower(Name) like lower('"+name2+"%') or lower(Name) like lower('%"+name3+"') or lower(Name) like lower('%"+name4+"') or lower(Name) like lower('%"+name5+"')) and lower(city) like lower('%"+city+"%')"
 
@@ -166,7 +162,7 @@ def individual(name):
                           port='5432',
                           database='postgres',
                           user= 'postgres',
-                          password= 'FutureLeaders') as conn:
+                          password= '') as conn:
         
         sql = "Select * from individual where (lower(Name) like lower('"+name+"%') or lower(Name) like lower('"+name1+"%') or lower(Name) like lower('"+name2+"%') or lower(Name) like lower('%"+name3+"') or lower(Name) like lower('%"+name4+"') or lower(Name) like lower('%"+name5+"'))"
         df = pd.read_sql(sql, conn, index_col=None)
@@ -187,7 +183,7 @@ def id_check(name,legal_id):
                           port='5432',
                           database='postgres',
                           user= 'postgres',
-                          password= 'FutureLeaders') as conn:
+                          password= '') as conn:
         
         sql = "Select name, legal_entity_id, organizationz.id, country, city from organizationz inner join organization_address on organization_address.organization_id=organizationz.id inner join address on address.id=organization_address.address_id where (lower(Name) like lower('"+name+"%') or lower(Name) like lower('"+name1+"%') or lower(Name) like lower('"+name2+"%') or lower(Name) like lower('%"+name3+"') or lower(Name) like lower('%"+name4+"') or lower(Name) like lower('%"+name5+"')) and legal_entity_id='%s'" %legal_id
         df = pd.read_sql(sql, conn, index_col=None)
@@ -245,7 +241,7 @@ def all_features(name,coun,city,legal_id):
                           port='5432',
                           database='postgres',
                           user= 'postgres',
-                          password= 'FutureLeaders') as conn:
+                          password= '') as conn:
         
         sql = "Select name, legal_entity_id, organizationz.id, country, city from organizationz inner join organization_address on organization_address.organization_id=organizationz.id inner join address on address.id=organization_address.address_id where (lower(Name) like lower('"+name+"%') or lower(Name) like lower('"+name1+"%') or lower(Name) like lower('"+name2+"%') or lower(Name) like lower('%"+name3+"') or lower(Name) like lower('"+name4+"%') or lower(Name) like lower('%"+name5+"'))"
         if city:
@@ -275,7 +271,7 @@ def get_soundex_matches(name):
                           port='5432',
                           database='postgres',
                           user= 'postgres',
-                          password= 'FutureLeaders') as conn:
+                          password= '') as conn:
         
         sql="SELECT * FROM organizationz WHERE soundex(name) = soundex('%s')" %name
 
@@ -293,7 +289,7 @@ def get_levenshtein_matches(name):
                           port='5432',
                           database='postgres',
                           user= 'postgres',
-                          password= 'FutureLeaders') as conn:
+                          password= '') as conn:
         
         sql="SELECT name, levenshtein(name, '%s') FROM organizationz WHERE soundex(name) = soundex('%s') order by levenshtein" % (name,name)
         #sql="select * from organizationz where levenshtein(name, '%s') < 8 and lower(Name)=='%s'" %(name,name)
@@ -310,7 +306,7 @@ def get_difference_matches(name):
                           port='5432',
                           database='postgres',
                           user= 'postgres',
-                          password= 'FutureLeaders') as conn:
+                          password= '') as conn:
         
         sql="SELECT name FROM organization WHERE difference(name, '%s') = 4" % name
         #sql="SELECT * from organization order by similarity(metaphone(name,10), metaphone('%s',10))" %name
@@ -328,7 +324,7 @@ def get_tables():
                           port='5432',
                           database='postgres',
                           user= 'postgres',
-                          password= 'FutureLeaders') as conn: 
+                          password= '') as conn: 
         sql="SELECT table_name FROM information_schema.tables WHERE table_schema = 'public' ORDER BY table_name;"
         df = pd.read_sql(sql, conn, index_col=None)
         return df
@@ -338,7 +334,7 @@ def read_table(table_name):
                           port='5432',
                           database='postgres',
                           user= 'postgres',
-                          password= 'FutureLeaders') as conn: 
+                          password= '') as conn: 
         sql="select * from %s limit 20" % table_name
         df = pd.read_sql(sql, conn, index_col=None)
         return df
@@ -355,7 +351,7 @@ def person_query(text):
     nlp = en_core_web_sm.load()
     doc=nlp(text)
     PERSON=[X.text for X in doc.ents if X.label_ in ["PERSON"]]
-    conn = psycopg2.connect(database="postgres", user="postgres", password="FutureLeaders", host="35.224.7.101", port="5432")
+    conn = psycopg2.connect(database="postgres", user="postgres", password="", host="35.224.7.101", port="5432")
     if len(PERSON)==1:
         sql = "Select * from individual where lower(Name) like lower('%"+PERSON[0]+"%')"
         df = pd.read_sql(sql, conn, index_col=None)
@@ -377,7 +373,7 @@ def organization_query(text):
     nlp = en_core_web_sm.load()
     doc=nlp(text)
     a,b,c=(X.text for X in doc.ents if X.label_ in ["ORG"])
-    conn = psycopg2.connect(database="postgres", user="postgres", password="FutureLeaders", host="35.224.7.101", port="5432")
+    conn = psycopg2.connect(database="postgres", user="postgres", password="", host="35.224.7.101", port="5432")
     
     a1=a.split()[0]
     a2=a.split()[1]
@@ -417,7 +413,7 @@ def save_organization(name):
     #pattern = r'[^a-zA-Z0-9\s]'
     #name = re.sub(pattern, '', name)
     #name=name.title()
-    #con = psycopg2.connect(database="postgres", user="postgres", password="FutureLeaders", host="35.224.7.101", port="5432")
+    #con = psycopg2.connect(database="postgres", user="postgres", password="", host="35.224.7.101", port="5432")
     #cur = con.cursor()
         
     #cur.execute("INSERT INTO organizationz (name) VALUES ('%s')" %name)
@@ -429,7 +425,7 @@ def save_individual(name):
     #pattern = r'[^a-zA-Z0-9\s]'
     #name = re.sub(pattern, '', name)
     #name=name.title()
-    #con = psycopg2.connect(database="postgres", user="postgres", password="FutureLeaders", host="35.224.7.101", port="5432")
+    #con = psycopg2.connect(database="postgres", user="postgres", password="", host="35.224.7.101", port="5432")
     #cur = con.cursor()
         
     #cur.execute("INSERT INTO individual (name) VALUES ('%s')" %name)
