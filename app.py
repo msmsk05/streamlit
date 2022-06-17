@@ -55,25 +55,25 @@ def write():
 
     
     if page == 'All Metrics':
-        st.success(get_table[0]).
+        st.success(get_table()[0])
         st.info('Accuracy score is:')
-        st.success(get_table[1])
+        st.success(get_table()[1])
         st.info('Precision score is:')
-        st.success(get_table[2])
+        st.success(get_table()[2])
         st.info('Recall score is:')
-        st.success(get_table[3])
+        st.success(get_table()[3])
         
     if page=='Accuracy':
         st.info('Accuracy score is:')
-        st.success(get_table[1])
+        st.success(get_table()[1])
         
     if page== 'Precision':
         st.info('Precision score is:')
-        st.success(get_table[2])
+        st.success(get_table()[2])
         
     if page == 'Recall':
         st.info('Recall score is:')
-        st.success(get_table[3])
+        st.success(get_table()[3])
       
 
       
