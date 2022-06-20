@@ -26,13 +26,16 @@ st.markdown(html_temp,unsafe_allow_html=True)
   
 @st.cache(allow_output_mutation=True)
 def get_table():
-  bigquery_client = bigquery.Client()
+  #bigquery_client = bigquery.Client()
 
-  QUERY = """
-  SELECT * FROM `coo-risk-ews-237113.ews.topic_model_feedback `
-   """
-  Query_Results = bigquery_client.query(QUERY)
-  df = Query_Results.to_dataframe()
+  
+  #QUERY = """
+  #SELECT * FROM `coo-risk-ews-237113.ews.topic_model_feedback `
+  #"""
+  
+  #Query_Results = bigquery_client.query(QUERY)
+  #df = Query_Results.to_dataframe()
+  df=pd.read_csv('bigquery_feedback.csv')
   #View top few rows of result
   TP=df[(df.model_threshold==True) & (df.feedback==True)].feedback.count()
   FP=df[(df.model_threshold==True) & (df.feedback==False)].feedback.count()
